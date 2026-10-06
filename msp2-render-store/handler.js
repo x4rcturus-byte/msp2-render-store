@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
+import { dashboard } from './dashboard.js';
 const hash = text => createHash('sha256').update(text).digest();
 export function createHandler({ store, apiKey }) {
     if (!apiKey || apiKey.length < 32 || apiKey.length > 512) throw new Error('STORE_API_KEY must contain 32–512 characters.');
@@ -6,6 +7,13 @@ export function createHandler({ store, apiKey }) {
         const reply = (status, body) => new Response(JSON.stringify(body), {status, headers:{'Content-Type':'application/json', 'Cache-Control':'no-store'}});
         const path = new URL(request.url).pathname;
         if (path === '/health' && request.method === 'GET') return reply(200, {ok:true});
+        if (path === '/bot' && request.method === 'GET' && !request.headers.has('x-api-key')) {
+            try {
+                return new Response(dashboard(await store.listPublic()), {headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store',
+                    'Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+                    'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});
+            } catch { return reply(503,{message:'Hesap listesi şu anda alınamadı.'}); }
+        }
         if (!timingSafeEqual(hash(request.headers.get('x-api-key') || ''), hash(apiKey))) return reply(401, {message:'Geçerli servis anahtarı gerekli.'});
         if (path !== '/save-bot' && path !== '/bot') return reply(404, {message:'Adres bulunamadı.'});
         if ((path === '/save-bot' && request.method !== 'POST') || (path === '/bot' && request.method !== 'GET')) return reply(405,{message:'İstek yöntemi geçersiz.'});

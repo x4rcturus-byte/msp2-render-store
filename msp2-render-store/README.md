@@ -40,8 +40,10 @@ okunamaz. `STORE_API_KEY` / `RENDER_STORE_KEY` çiftini birlikte değiştirebili
 
 - `GET /health`: token içermeyen servis durumu, herkese açık.
 - `POST /save-bot`: `X-API-Key` ile oturum kaydı. Vercel sunucusu çağırır.
-- `GET /bot`: aynı anahtarla son 5000 kaydı JSON olarak getirir; token içerir.
-  Tarayıcıda adresi açmak yeterli değildir, anahtar başlığı da gereklidir.
+- `GET /bot`: anahtar olmadan tarayıcıda hesap tablosunu açar. Hesap adı, sunucu,
+  profil kimliği ve tokenın süre bilgisi herkese açıktır. Token gönderilmez veya
+  çözülmez. Aynı adres `X-API-Key` ile çağrılırsa token içeren özel JSON döner.
+  Hatalı bir anahtar gönderilirse 401 döner. Kayıt işlemi hâlâ anahtar gerektirir.
 
 Vercel kayıt isteği yalnızca `profileId`, `accessToken`, `expiresIn`, `username`
 ve `server` içerir. Kullanıcı şifresi ve Vercel giriş anahtarı Render'a gönderilmez.

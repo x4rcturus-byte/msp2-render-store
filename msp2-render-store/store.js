@@ -30,6 +30,12 @@ export function createStore(pool, keyHex) {
             const count = await pool.query('SELECT COUNT(*)::int AS total FROM msp_sessions');
             return { total: count.rows[0].total };
         },
+        async listPublic() {
+            const result = await pool.query('SELECT profile_id, username, server, expires_at, saved_at FROM msp_sessions ORDER BY saved_at DESC LIMIT 5000');
+            return result.rows.map(row => ({profileId:row.profile_id, username:row.username, server:row.server,
+                savedAt:row.saved_at, expiresAt:row.expires_at,
+                expired:row.expires_at ? new Date(row.expires_at).getTime() <= Date.now() : null}));
+        },
         async list() {
             const result = await pool.query('SELECT * FROM msp_sessions ORDER BY saved_at DESC LIMIT 5000');
             return result.rows.map(row => ({profileId:row.profile_id, username:row.username, server:row.server,
