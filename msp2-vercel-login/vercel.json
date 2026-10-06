@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "outputDirectory": "public",
+  "functions": { "api/login.js": { "maxDuration": 60 } },
+  "rewrites": [{ "source": "/login", "destination": "/api/login" }]
+}
